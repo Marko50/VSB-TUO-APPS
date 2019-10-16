@@ -89,19 +89,15 @@ private:
 
     // conversion of 24-bit RGB color into 16-bit color format
     int convert_RGB888_to_RGB565( RGB t_color ) { 
-        short red_8_bit = (short) t_color.r;
-        short green_8_bit = (short) t_color.g;
-        short blue_5_bit = (short) t_color.b;
-
-        int red_shift = 16 - 5; // pull the red to the first significant bits
-        int green_shift = 16 - red_shift; // pull the green on to the middle
-
-        short red_5_bit = red_8_bit << red_shift;
-        short green_6_bit = green_8_bit << green_shift;
-
-        int final_transform = (int) (red_5_bit | green_6_bit | blue_5_bit);
-
-        return final_transform;
+        uint8_t red   = t_color.r;
+        uint8_t green = t_color.g;
+        uint8_t blue  = t_color.b;
+ 
+        uint16_t b = (blue >> 3) & 0x1f;
+        uint16_t g = ((green >> 2) & 0x3f) << 5;
+        uint16_t r = ((red >> 3) & 0x1f) << 11;
+ 
+        return (uint16_t) (r | g | b);
     }
 };
 
@@ -254,19 +250,19 @@ int main()
     Point2D point2;
     point2.x = 120;
     point2.y = 120;
-
+    //140,45,25
     RGB fg_color;
-    fg_color.r = 0;
-    fg_color.g = 0;
-    fg_color.b = 255;
+    fg_color.r = 140;
+    fg_color.g = 45;
+    fg_color.b = 25;
 
     RGB bg_color;
     bg_color.r = 0;
     bg_color.g = 0;
     bg_color.b = 0;
 
-    // Character character = Character(point, 'C', fg_color, bg_color);
-    // character.draw();
+    Character character = Character(point2, 'C', fg_color, bg_color);
+    character.draw();
 
     // Line line = Line(point, point2, fg_color, bg_color);
     // line.draw();

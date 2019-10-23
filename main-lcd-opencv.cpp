@@ -269,10 +269,12 @@ public:
     Point2D center;
     static const int RADIUS = 50;
     int current_pointer_angle;
+    char identifier;
  
-    TimePanel(Point2D c, RGB t_fg, RGB t_bg):
+    TimePanel(Point2D c, RGB t_fg, RGB t_bg, char i):
         center(c),
         current_pointer_angle(0),
+        identifier(i),
         GraphElement(t_fg, t_bg){
  
     }
@@ -283,6 +285,7 @@ public:
         this->drawPointer();
         this->drawClock();
         this->drawCapsule();
+        this->drawIdentifier();
     }
 
     virtual void drawClock() = 0;
@@ -325,12 +328,22 @@ public:
         Rectangle rectangle = Rectangle(p1, p2, p3, p4, this->fg_color, this->bg_color);
         rectangle.draw();
     }
+
+    void drawIdentifier(){
+        Point2D p;
+
+        p.x = this->center.x;
+        p.y = this->center.y - RADIUS/2;
+
+        Character ch = Character(p, this->identifier, this->fg_color, this->bg_color);
+        ch.draw();
+    }
 };
 
 class HoursPanel : public TimePanel{
 public:
     int division_size = 12;
-    HoursPanel(Point2D c, RGB t_fg, RGB t_bg): TimePanel(c, t_fg, t_bg){}
+    HoursPanel(Point2D c, RGB t_fg, RGB t_bg): TimePanel(c, t_fg, t_bg, 72){}
 
     void drawClock(){
         int angle_difference = 180/(this->division_size - 1);
@@ -371,7 +384,7 @@ public:
 class MinutesSecondsPanel : public TimePanel{
 public:
     int division_size = 60;
-    MinutesSecondsPanel(Point2D c, RGB t_fg, RGB t_bg): TimePanel(c, t_fg, t_bg){}
+    MinutesSecondsPanel(Point2D c, RGB t_fg, RGB t_bg, char id): TimePanel(c, t_fg, t_bg, id){}
 
     void drawClock(){
         int angle_difference = 180/(this->division_size - 1);
@@ -410,6 +423,21 @@ public:
     }
 };
 
+class Clocks{
+public:
+    HoursPanel hours;
+    MinutesSecondsPanel minutes;
+    MinutesSecondsPanel seconds;
+
+    Clocks(HoursPanel h, MinutesSecondsPanel m, MinutesSecondsPanel s) : hours(h), minutes(m), seconds(s){}
+
+    void draw(){
+        this->hours.draw();
+        this->minutes.draw();
+        this->seconds.draw();
+    } 
+};
+
 int main()
 {
     lcd_init();                     // LCD initialization
@@ -439,10 +467,10 @@ int main()
     HoursPanel hours = HoursPanel(p1, color1, color2);
     hours.draw();
 
-    MinutesSecondsPanel minutes = MinutesSecondsPanel(p2, color1, color2);
+    MinutesSecondsPanel minutes = MinutesSecondsPanel(p2, color1, color2, 77);
     minutes.draw();
 
-    MinutesSecondsPanel seconds = MinutesSecondsPanel(p3, color1, color2);
+    MinutesSecondsPanel seconds = MinutesSecondsPanel(p3, color1, color2, 83);
     seconds.draw();
 
 

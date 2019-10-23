@@ -14,12 +14,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <math.h>
+#include <string>
 #include <opencv2/opencv.hpp>
 #include "font8x8.h"
 
 #define LCD_WIDTH       320
 #define LCD_HEIGHT      240
 #define LCD_NAME        "Virtual LCD"
+
+float convert_to_radian(int angle){
+    return M_PI*angle/180.0;
+}
 
 // LCD Simulator
 
@@ -238,37 +244,207 @@ public:
     };
 };
 
+class Rectangle: public GraphElement{
+public:
+    Point2D p1,p2,p3,p4;
+ 
+    Rectangle(Point2D pos1, Point2D pos2, Point2D pos3, Point2D pos4, RGB t_fg, RGB t_bg):
+        p1(pos1), p2(pos2), p3(pos3), p4(pos4), GraphElement( t_fg, t_bg ) {}
+ 
+    void draw(){
+        Line l1 = Line(this->p1, this->p2, this->fg_color, this->bg_color);
+        Line l2 = Line(this->p2, this->p3, this->fg_color, this->bg_color);
+        Line l3 = Line(this->p3, this->p4, this->fg_color, this->bg_color);
+        Line l4 = Line(this->p4, this->p1, this->fg_color, this->bg_color);
+ 
+        l1.draw();
+        l2.draw();
+        l3.draw();
+        l4.draw();
+    }
+};
+ 
+class TimePanel: public GraphElement{
+public:
+    Point2D center;
+    static const int RADIUS = 50;
+    int current_pointer_angle;
+ 
+    TimePanel(Point2D c, RGB t_fg, RGB t_bg):
+        center(c),
+        current_pointer_angle(0),
+        GraphElement(t_fg, t_bg){
+ 
+    }
+ 
+    void draw(){
+
+        this->drawPixel(this->center.x, this->center.y);
+        this->drawPointer();
+        this->drawClock();
+        this->drawCapsule();
+    }
+
+    virtual void drawClock() = 0;
+
+    virtual void drawPointer() = 0;
+
+    void drawNumber(int num, Point2D p){
+        if (num > 57){
+            Character number = Character( p, (char) 49 , this->fg_color, this->bg_color );
+            number.draw();
+            
+            Point2D p2;
+            p2.x = p.x + 10;
+            p2.y = p.y;
+
+            Character number2 = Character( p2, (char) 47 + (num - 57) , this->fg_color, this->bg_color );
+            number2.draw();
+        }
+        else{
+            Character number = Character( p, (char) num , this->fg_color, this->bg_color );
+            number.draw();
+        }
+    }
+
+    void drawCapsule(){
+        Point2D p1,p2,p3,p4;
+
+        p1.x = this->center.x - RADIUS - 10;
+        p1.y = this->center.y - RADIUS - 10;
+
+        p2.x = this->center.x + RADIUS + 20;
+        p2.y = p1.y;
+
+        p3.x = p2.x;
+        p3.y = this->center.y + RADIUS/2;
+
+        p4.x = p1.x;
+        p4.y = p3.y;
+
+        Rectangle rectangle = Rectangle(p1, p2, p3, p4, this->fg_color, this->bg_color);
+        rectangle.draw();
+    }
+};
+
+class HoursPanel : public TimePanel{
+public:
+    int division_size = 12;
+    HoursPanel(Point2D c, RGB t_fg, RGB t_bg): TimePanel(c, t_fg, t_bg){}
+
+    void drawClock(){
+        int angle_difference = 180/(this->division_size - 1);
+        int current_angle = 0;
+        int number = 49;
+
+        while(current_angle <= 180){
+            int px = this->center.x - RADIUS * cos(convert_to_radian(current_angle));
+            int py = this->center.y - RADIUS * sin(convert_to_radian(current_angle));
+            Point2D p;
+            p.x = px;
+            p.y = py;
+            this->drawNumber(number, p);
+            current_angle += angle_difference;
+            number += 1;
+        }
+    }
+
+    void drawPointer(){
+        Point2D original;
+
+        int modifier_x = cos(convert_to_radian(this->current_pointer_angle))/abs(cos(convert_to_radian(this->current_pointer_angle)));
+        
+        original.x = this->center.x - RADIUS * cos(convert_to_radian(this->current_pointer_angle)) + 15*modifier_x;
+        original.y = this->center.y - RADIUS * sin(convert_to_radian(this->current_pointer_angle)) + 3;
+ 
+        Line l = Line(this->center, original, this->fg_color, this->bg_color);
+
+        l.draw(); 
+    }
+
+    void tick(int d_size){
+        int increase = 180/d_size;
+        this->current_pointer_angle += increase;
+    }
+};
+
+class MinutesSecondsPanel : public TimePanel{
+public:
+    int division_size = 60;
+    MinutesSecondsPanel(Point2D c, RGB t_fg, RGB t_bg): TimePanel(c, t_fg, t_bg){}
+
+    void drawClock(){
+        int angle_difference = 180/(this->division_size - 1);
+        int current_angle = 0;
+        int number = 49;
+
+        while(current_angle <= 180){
+            int px = this->center.x - RADIUS * cos(convert_to_radian(current_angle));
+            int py = this->center.y - RADIUS * sin(convert_to_radian(current_angle));
+            Point2D p;
+            p.x = px;
+            p.y = py;
+            if(current_angle == 90){
+                this->drawPixel(px, py);
+            }
+            else{
+                this->drawPixel(px, py);
+            }
+            
+            current_angle += angle_difference;
+            number += 1;
+        }
+    }
+
+    void drawPointer(){
+        Point2D original;
+
+        int modifier_x = cos(convert_to_radian(this->current_pointer_angle))/abs(cos(convert_to_radian(this->current_pointer_angle)));
+        
+        original.x = this->center.x - RADIUS * cos(convert_to_radian(this->current_pointer_angle)) + 15*modifier_x;
+        original.y = this->center.y - RADIUS * sin(convert_to_radian(this->current_pointer_angle));
+ 
+        Line l = Line(this->center, original, this->fg_color, this->bg_color);
+
+        l.draw(); 
+    }
+};
+
 int main()
 {
     lcd_init();                     // LCD initialization
 
     lcd_clear();                    // LCD clear screen
-    Point2D point;
-    point.x = 60;
-    point.y = 60;
+    
+    RGB color1, color2;
+    Point2D p1,p2,p3;
+ 
+    color1.r = 255;
+    color1.g = 0;
+    color1.b = 0;
+ 
+    color2.r = 255;
+    color2.g = 255;
+    color2.b = 255;
+ 
+    p1.x = 80;
+    p1.y = 80;
 
-    Point2D point2;
-    point2.x = 120;
-    point2.y = 120;
-    //140,45,25
-    RGB fg_color;
-    fg_color.r = 140;
-    fg_color.g = 45;
-    fg_color.b = 25;
+    p2.x = 240;
+    p2.y = 80;
 
-    RGB bg_color;
-    bg_color.r = 0;
-    bg_color.g = 0;
-    bg_color.b = 0;
+    p3.x = 140;
+    p3.y = 175;
 
-    Character character = Character(point2, 'C', fg_color, bg_color);
-    character.draw();
+    HoursPanel hours = HoursPanel(p1, color1, color2);
+    hours.draw();
 
-    // Line line = Line(point, point2, fg_color, bg_color);
-    // line.draw();
+    MinutesSecondsPanel minutes = MinutesSecondsPanel(p2, color1, color2);
+    minutes.draw();
 
-    Circle circle = Circle(point2, 60, fg_color, bg_color);
-    circle.draw();
+    MinutesSecondsPanel seconds = MinutesSecondsPanel(p3, color1, color2);
+    seconds.draw();
+
 
     cv::imshow( LCD_NAME, g_canvas );   // refresh content of "LCD"
     cv::waitKey( 0 );                   // wait for key 

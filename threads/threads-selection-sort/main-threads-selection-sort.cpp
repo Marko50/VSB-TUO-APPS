@@ -17,9 +17,10 @@ public:
     int m_from, m_to;     // data range
     TYPE *m_data;             // array
     TYPE *result;
+    bool desc;
 
-    TaskPart( int t_myid, int t_from, int t_length, TYPE *t_data ) :
-        m_id( t_myid ), m_from( t_from ), m_to( t_length ), m_data( t_data ) {
+    TaskPart( int t_myid, int t_from, int t_length, TYPE *t_data, bool dsc ) :
+        m_id( t_myid ), m_from( t_from ), m_to( t_length ), m_data( t_data ), desc(dsc) {
             this->result = new TYPE[m_to - m_from];
             std::memcpy(result, m_data + m_from, (m_to - m_from)*sizeof(TYPE));
             this->print_array();
@@ -29,12 +30,18 @@ public:
         int i, j, min_idx;  
         // One by one move boundary of unsorted subarray  
         for (i = 0; i < (m_to-m_from)-1; i++){  
-            // Find the minimum element in unsorted array  
+            // Find the minimum/maximum element in unsorted array  
             min_idx = i;  
-            for (j = i+1; j < (m_to-m_from); j++)  
-                if (result[j] < result[min_idx])  
-                    min_idx = j;  
-
+            for (j = i+1; j < (m_to-m_from); j++){
+                if (this->desc){
+                    if (result[j] > result[min_idx])  
+                        min_idx = j;
+                }
+                else{
+                    if (result[j] < result[min_idx])  
+                        min_idx = j;
+                }
+            }
             std::swap(result[i], result[min_idx]);
         }
     }
@@ -104,12 +111,15 @@ void mergeArrays(int arr1[], int arr2[], int n1, int n2, int arr3[]) {
 
 int main( int t_na, char **t_arg ){
     // The number of elements must be used as program argument
-    if ( t_na != 2 ) { 
-        printf( "Specify number of elements, at least %d.\n", LENGTH_LIMIT ); 
+    if ( t_na != 3 ) { 
+        printf( "Specify number of elements, at least %d. And the order of sorting. ASC vs DESC \n", LENGTH_LIMIT ); 
         return 0; 
     }
 
     int l_my_length = atoi( t_arg[ 1 ] );
+    char * order_sorting = t_arg[2];
+
+    bool descending = (strcmp(order_sorting, "DESC") == 0); 
 
     if ( l_my_length < LENGTH_LIMIT ) { 
         printf( "The number of elements must be at least %d.\n", LENGTH_LIMIT ); 
@@ -139,8 +149,8 @@ int main( int t_na, char **t_arg ){
     
     printf( "\nSelection sort using two threads...\n" );
     pthread_t l_pt1, l_pt2;
-    TaskPart l_tp1( 1, 0, l_my_length / 2, l_my_array );
-    TaskPart l_tp2( 2, l_my_length / 2, l_my_length, l_my_array );
+    TaskPart l_tp1( 1, 0, l_my_length / 2, l_my_array, descending );
+    TaskPart l_tp2( 2, l_my_length / 2, l_my_length, l_my_array, descending );
 
     timeval l_time_before, l_time_after;
 
@@ -172,7 +182,7 @@ int main( int t_na, char **t_arg ){
     gettimeofday( &l_time_before, NULL );
 
     // Sorting in single thread
-    TaskPart l_single( 333, 0, l_my_length, l_my_array );
+    TaskPart l_single( 333, 0, l_my_length, l_my_array, descending );
     l_single.selection_sort();
 
     gettimeofday( &l_time_after, NULL );

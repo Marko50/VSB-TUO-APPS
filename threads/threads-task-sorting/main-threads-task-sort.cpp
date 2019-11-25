@@ -8,7 +8,7 @@
 #include <iostream>
 #include <cstring>
 
-#define TYPE float
+#define TYPE int
 
 // class for one part of task
 class TaskPart{
@@ -19,11 +19,14 @@ public:
     TYPE *result;
     bool desc;
 
+    TaskPart(){
+
+    }
+
     TaskPart( int t_myid, int t_from, int t_length, TYPE *t_data, bool dsc ) :
         m_id( t_myid ), m_from( t_from ), m_to( t_length ), m_data( t_data ), desc(dsc) {
             this->result = new TYPE[m_to - m_from];
             std::memcpy(result, m_data + m_from, (m_to - m_from)*sizeof(TYPE));
-            //this->print_array();
         }
 
     void selection_sort(){
@@ -62,13 +65,13 @@ void *my_thread( void *t_void_arg )
 {
     TaskPart *lp_task = ( TaskPart * ) t_void_arg;
 
-    printf( "\nThread %d started from %d with length %d...\n",
+    printf( "\nThread %d started from %d to %d...\n",
         lp_task->m_id, lp_task->m_from, lp_task->m_to );
 
     lp_task->selection_sort();
 
-    printf( "\nSorted array in thread %d: \n", lp_task->m_id);
-    lp_task->print_array();
+    // printf( "\nSorted array in thread %d: \n", lp_task->m_id);
+    // lp_task->print_array();
 
     return NULL;
 }
@@ -84,7 +87,7 @@ int timeval_diff_to_ms( timeval *t_before, timeval *t_after )
 #define LENGTH_LIMIT 10
 
 
-void mergeArrays(TYPE arr1[], TYPE arr2[], int n1, int n2, TYPE arr3[]) { 
+void mergeArrays(TYPE arr1[], TYPE arr2[], int n1, int n2, TYPE arr3[], bool desc) { 
     int i = 0, j = 0, k = 0; 
     // Traverse both array 
     while (i<n1 && j <n2) { 
@@ -93,19 +96,26 @@ void mergeArrays(TYPE arr1[], TYPE arr2[], int n1, int n2, TYPE arr3[]) {
         // of second array. If yes, store first 
         // array element and increment first array 
         // index. Otherwise do same with second array 
-        if (arr1[i] < arr2[j]) 
-            arr3[k++] = arr1[i++]; 
-        else
-            arr3[k++] = arr2[j++]; 
+        if(desc){
+            if (arr1[i] > arr2[j]) 
+                arr3[k++] = arr1[i++]; 
+            else
+                arr3[k++] = arr2[j++]; 
+        }
+        else{
+            if (arr1[i] < arr2[j]) 
+                arr3[k++] = arr1[i++]; 
+            else
+                arr3[k++] = arr2[j++]; 
+        }  
     } 
-  
     // Store remaining elements of first array 
     while (i < n1) 
         arr3[k++] = arr1[i++]; 
   
     // Store remaining elements of second array 
     while (j < n2) 
-        arr3[k++] = arr2[j++]; 
+        arr3[k++] = arr2[j++];
 } 
 
 bool compare_arrays(TYPE * arr1, TYPE * arr2, int n){
@@ -117,18 +127,49 @@ bool compare_arrays(TYPE * arr1, TYPE * arr2, int n){
     return true;
 }
 
+void sort_array_using_threads(int number_of_threads, TYPE * arr, int length, bool desc){
+    printf( "\nSelection sort using %d threads...\n", number_of_threads);
+    
+    pthread_t threads[number_of_threads];
+    TaskPart tasks[number_of_threads];
+
+    for (int i = 0; i < number_of_threads; i++){
+        TaskPart l_tp( i + 1, (length / number_of_threads) * i, (length / number_of_threads)*i + (length / number_of_threads), arr, desc );
+        tasks[i] = l_tp;
+    }
+
+    for (int i = 0; i < number_of_threads; i++){
+        pthread_create(&threads[i], NULL, my_thread, &tasks[i]);
+    }
+
+    for (int i = 0; i < number_of_threads; i++){
+        pthread_join(threads[i], NULL);
+    }
+
+    TYPE * accum = new TYPE[length/number_of_threads];
+    memcpy(accum, tasks[0].result, sizeof(TYPE) * (length/number_of_threads));
+    for (int i = 1; i < number_of_threads; i++){
+        TYPE * copy = new TYPE[ (length/number_of_threads) * i];
+        memcpy(copy, accum, sizeof(TYPE) * (length/number_of_threads) * i);
+        mergeArrays(copy, tasks[i].result, (length/number_of_threads) * i, length/number_of_threads, accum, desc);
+    }
+    memcpy(arr, accum, sizeof(TYPE) * length);
+
+    // printf("\nFinal sorted:\n");
+    //     for(int i = 0; i < length; i++){
+    //         printf("%d ", arr[i]);
+    //     }
+    // printf("\n");
+}
 
 int main( int t_na, char **t_arg ){
     // The number of elements must be used as program argument
-    if ( t_na != 3 ) { 
-        printf( "Specify number of elements, at least %d. And the order of sorting. ASC vs DESC \n", LENGTH_LIMIT ); 
+    if ( t_na != 2 ) { 
+        printf( "Specify number of elements, at least %d.\n", LENGTH_LIMIT ); 
         return 0; 
     }
 
     int l_my_length = atoi( t_arg[ 1 ] );
-    char * order_sorting = t_arg[2];
-
-    bool descending = (strcmp(order_sorting, "DESC") == 0); 
 
     if ( l_my_length < LENGTH_LIMIT ) { 
         printf( "The number of elements must be at least %d.\n", LENGTH_LIMIT ); 
@@ -137,6 +178,7 @@ int main( int t_na, char **t_arg ){
 
     // array allocation
     TYPE *l_my_array = new TYPE [ l_my_length ];
+    TYPE *l_my_array_copy = new TYPE [l_my_length];
 
     if ( !l_my_array ) {
         printf( "Not enought memory for array!\n" );
@@ -148,64 +190,42 @@ int main( int t_na, char **t_arg ){
 
     printf( "Random numbers generetion started..." );
     for ( int i = 0; i < l_my_length; i++ ){
-        l_my_array[ i ] = rand() % ( 100000 ) / 100.0;
-        if ( !( i % LENGTH_LIMIT ) ) 
-        {
+        l_my_array[ i ] = rand() % ( 100000 );
+        if ( !( i % LENGTH_LIMIT ) ) {
             printf( "." ); 
             fflush( stdout );
         }
     }
-    
-    printf( "\nSelection sort using two threads...\n" );
-    pthread_t l_pt1, l_pt2;
-    TaskPart l_tp1( 1, 0, l_my_length / 2, l_my_array, descending );
-    TaskPart l_tp2( 2, l_my_length / 2, l_my_length, l_my_array, descending );
 
+    memcpy(l_my_array_copy, l_my_array, l_my_length*sizeof(TYPE));
+    
     timeval l_time_before, l_time_after;
 
-    // Time recording before searching
+    printf("\nNow sorting asc..\n");
     gettimeofday( &l_time_before, NULL );
-
-    // Threads starting
-    pthread_create( &l_pt1, NULL, my_thread, &l_tp1 );
-    pthread_create( &l_pt2, NULL, my_thread, &l_tp2 );
-
-    // Waiting for threads completion 
-    pthread_join( l_pt1, NULL );
-    pthread_join( l_pt2, NULL );
-
-    // Time recording after sorting
+    sort_array_using_threads(4, l_my_array, l_my_length, false);
     gettimeofday( &l_time_after, NULL );
-
-    //TODO: merge arrays
-    TYPE * final_sorted = new TYPE[l_my_length];
-    mergeArrays(l_tp1.result, l_tp2.result, l_my_length/2, l_my_length/2, final_sorted);
-    std::cout << "\nMerged arrays: " << std::endl;
-    for (int i=0; i < l_my_length; i++)  
-        std::cout << final_sorted[i] << " ";  
-    std::cout << std::endl; 
+    printf( "The Sorting time: %d [ms]\n", timeval_diff_to_ms( &l_time_before, &l_time_after ) );
+     
+    printf("\nNow sorting the sorted asc..\n");
+    gettimeofday( &l_time_before, NULL );
+    sort_array_using_threads(4, l_my_array, l_my_length, false);
+    gettimeofday( &l_time_after, NULL );
     printf( "The Sorting time: %d [ms]\n", timeval_diff_to_ms( &l_time_before, &l_time_after ) );
 
-    printf( "\nSelection sort using one thread...\n" );
-
-    gettimeofday( &l_time_before, NULL );
-
     // Sorting in single thread
-    TaskPart l_single( 333, 0, l_my_length, l_my_array, descending );
-    l_single.selection_sort();
-
+    gettimeofday( &l_time_before, NULL );
+    sort_array_using_threads(1, l_my_array_copy, l_my_length, false);
     gettimeofday( &l_time_after, NULL );
-
-    printf( "Sorted array in thread %d: \n", l_single.m_id);
-    l_single.print_array();
-
     printf( "The sorting time: %d [ms]\n", timeval_diff_to_ms( &l_time_before, &l_time_after ) );
 
-    if (compare_arrays(final_sorted, l_single.result, l_my_length)){
-        printf("\nThe arrays match.\n");
-    }
-    else{
-        printf("\nThe arrays do not match\n");
+    if (compare_arrays(l_my_array, l_my_array_copy, l_my_length)){
+        printf("\nArrays are the same and correctly sorted.\n");
     }
     
+    printf("\nNow sorting the asc sorted desc..\n");
+    gettimeofday( &l_time_before, NULL );
+    sort_array_using_threads(4, l_my_array, l_my_length, true);
+    gettimeofday( &l_time_after, NULL );
+    printf( "The Sorting time: %d [ms]\n", timeval_diff_to_ms( &l_time_before, &l_time_after ) );
 }

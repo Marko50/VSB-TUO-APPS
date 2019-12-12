@@ -49,7 +49,7 @@ int main( int t_numarg, char **t_arg )
 	l_pic_ball.m_size.x = l_cv_ball.cols;
 	l_pic_ball.m_size.y = l_cv_ball.rows;
 	l_pic_ball.m_p_uchar4 = ( uchar4 * ) l_cv_ball.data;
-
+	
 	// Prepare data for animation
 	l_animation.start( l_pic_animation, l_pic_ball );
 

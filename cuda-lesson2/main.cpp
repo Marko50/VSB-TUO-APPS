@@ -33,8 +33,8 @@ void resize_action( cv::Mat& t_orig){
     CudaPic cuda_resize_up(&l_resize_up);
     CudaPic cuda_resize_down(&l_resize_down);
     CudaPic original(&t_orig);
-    cu_bilin_scale( original, cuda_resize_up,  32);
-    cu_bilin_scale( original, cuda_resize_down,  32);
+    cu_bilin_scale( original, cuda_resize_up,  1);
+    cu_bilin_scale( original, cuda_resize_down,  1);
     cv::imshow( "Resize up", l_resize_up );
     cv::imshow( "Resize down", l_resize_down );
 }

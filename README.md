@@ -632,4 +632,187 @@ Microcomputers can be integrated many others devices:
 - Comparators.
 - PWM generator.
 
+## Hard Disks and Optical Drives
 
+### Magnetic Medium
+
+The principle applied to all magnetic disks is similar. There is a very thin magnetic surface on the carrier and information is saved as a magnetic orientation in small magnetic elements. The longitudinal write was used for fifty years. It is shown on the next scheme. Every drive uses two heads, one for reading and one for writing. 
+
+![magnetic medium](./images/magnetic_medium.png)
+
+Modern hard disks use greater density writing with – perpendicular write – see below. This principle required a change of the writing head design in a drive. The greater density provides more than the higher medium capacity. More information passes under the read head at the same time and it increases the speed of reading.
+
+![magnetic medium perp](./images/magnetic_medium_perp.png)
+
+
+#### Giant Magnetic Resistance - GMR
+
+Reading heads are using the technology invented in 1997 – Giant Magnetic Resistance. The resistance of the material depends on the ability to pass electrons. But very thin layers are also affected by quantum mechanics. Ferromagnetic material in magnetic fields can only pass electrons with the same spin.
+
+![gmr](./images/gmr.png)
+
+On the previous picture there are two outside thin layers from ferromagnetic material (usually cobalt). The middle layer is a nonmagnetic metal (usually copper). When electrons come from the left side, the ferromagnetic material passes only those with a spin that has the same direction as the magnetic field. It can pass up to 50% of electrons. Now electrons pass through the middle layer to a second ferromagnetic layer. If the magnetic field in this layer has the same orientation as the first one, all electrons pass to the right side. Therefore all three layers have  low resistance .If the magnetic field has different orientation in both outside layers, no electrons are possible to pass through all layers and this structure has high resistance. The resistance is not measured directly in the hard disk read head. The voltage is connected to the head and the current passes through the GMR structure. When the resistance in the head grows, the current decreases. Thus we say that the head works as a "current valve".
+
+#### Data Encoding
+
+The first encoding system for digital data recording on magnetic media, was frequency modulation FM. This is a simple scheme, where a 1 is recorded as two consecutive flux reversals, and a 0 is recorded as a flux reversal followed by no flux reversal. The problem with FM is that it is wasteful. Each bit requires two flux reversal positions. FM was replaced by modified frequency modulation - MFM. The MFM reduces the number of flux reversals inserted just for the synchronization. Instead of inserting a synchronization reversal before each bit, one is inserted only between consecutive zeros.
+An improvement of the MFM encoding is the Run Length Limited encoding (RLL). This is a more sophisticated coding technique. The RLL works by looking at groups of bits instead of encoding one bit at a time. The idea is to mix the synchronization and data flux reversals to allow even denser packing of encoded data to improve efficiency (up to 3 times).
+
+### Hard Disks
+
+Hard disks consist of several rounded plates with a magnetic surface. All plates are mounted parallel on the spindle (axis). The spindle is mounted in a bearing and rotation is provided by a synchronous (three phase) motor. The speed of rotation is usually in thousands of rotations per minute and it is constant. The second most important functional parts are (read and write) heads. There is one head moving above each plate surface. All heads are mounted on the a parallel with the spindle. This pivot does not rotate and the step motor tilts them in a small angle. Both functional parts are inserted in an aluminum alloy case from where the board with the driver and controller is mounted outside. The case has to be dust-proof. The hard disk is then connected to a computer board by a cable.
+
+![hard drive](./images/hard_drive.png)
+
+Plates rotate with at an high speed and heads move above the plates' surface. All heads move synchronously, because they are mounted firmly on the pivot. In each step an head makes a circle on a plate,called a track. Tracks with the same order number create virtual cylinders on plates.
+
+![hard disk track](./images/hard_disk_track.png)
+
+Every track is divided to circle segments, which are in short called sectors. Tracks and sectors are on both sides of the plates.
+
+#### Geometry
+
+From the previously mentioned information we can conclude that the hard disk geometry is given in units: Cylinders – Heads – Sectors. The size of the sector is 512 bytes and the capacity of the disk can be computed as a product: Cylinder\*Heads\*Sectors*512. To write data on disk,  data is on a first step, written to all sectors in one track. Then the writing continues on the track with the same order number under the following head. When all heads finished writing to the single cylinder, then heads are moved to the next cylinder. The smallest addressing unit of the disk is one sector! When a program wants to read one byte, it must read the whole sector. Therefore a cache is installed on the disk controller, which speeds up the reading. Hard disk does not propagate outside its real CHS geometry. It presents some virtual geometry (LBA) and it internally converts the sector order number to internal geometry.
+
+#### S.M.A.R.T
+
+All hard disks are equipped with standardized technology: Self-Monitoring, Analysis and Reporting Technology, in short SMART. The purpose of SMART is to inform users about technical problems during running and warn them of impending failure. Early warning provides the user some time to back up data and replace the drive. Disk errors are predictable and unpredictable. Predictable errors cause more than 60% of failures and SMART can detect them in advance. The main monitored parameters, which may cause failure are e.g. distance between heads and plates - small distance may cause head crash. The number of bad sectors – the newest disks redirect bad sectors to a backup area. But when too many sectors are redirected, the disk is marked as unreliable. The high temperature - may damage some hard disk parts of hard disk. 
+The time required for the disk to spin up – any changes of that time indicate imminent failure of the engine.
+
+#### Parameters
+
+All disks have a number of technical parameters. They are used by customers to make the proper selection:
+- Capacity – GB/TB 
+- Size of disk – external dimension
+- Speed – RPM, usually thousands of rotations per minute. Higher speed can generate noise and the disk will warm up.
+- Transfer speed – how many MB/s can the disk read or write.
+- Interface – cable connector for one standard SATA, PATA, SAS.
+- Access time – average delay before reading.
+- Power consumption – disk with high consumption needs cooling. 
+- MTBS – mean time between failures - value indicates the reliability of the disk. Disks designed for servers and RAIDs have significantly higher MTBF, than low-end disks for desktops. computers.
+
+### Floppy Drives
+
+Until recent past, floppy disks were in wide use. Now they have become quite rare. There were several types of floppy drives used in personal computers: 
+- 5¼ with capacity of 360kB, 720kB (both sides) and 1.2MB
+- 3½ with capacity of 720kB, 1.44MB and 2.88MB. - LS-120 – Superdisk with capacity of 120MB.
+- ZIP – external or internal floppy drive with capacity 100MB.
+
+Floppy disks were always manufactured in self-closing disk cartridges, apart from old 5¼ floppy disks. The floppy drive and the hard drive has one major technical difference, apart from the fact that floppy disks being removable media. The read head in the floppy drive has a direct contact with magnetic media. Floppy drive is therefore significantly slower,otherwise the media or the head could be damaged. Floppy disks have a low speed and also they have low reliability.
+
+
+### Optical Drives
+
+![optical drives](./images/optical_drives.png)
+
+The laser diode emits a beam through a semi-transparent mirror to the first lens. A pre-focused laser beam continues through the second focusing lens to CD-ROM media. Pits or lands may/may not reflect the beam back. The bottom reflexive layer of the mirror directs the beam to the sensor – laser photo diode. This diode converts the reflected signal to a digital one and the device controller decodes them to data. The CD-ROM media has its data layer under the transparent polycarbonate surface and laser beam must pass it twice. On the opposite side there is data layer protected by a reflective layer, protective layer and paint.
+
+#### Optical media
+
+CD's and DVD's.
+Capacity of DVD is greater not only due to higher density of information on DVD media. Changed encoding of stored data increases overall capacity of media nearly 7x.  
+
+The CD-ROM has data stored in a spiral shape. This spiral represents totally up to 22188 turns with a total length up to 5.77 km. The DVD media stores data with an higher density so the total length is 11.84 km. The DVD media allows to store data in two layers on one side – capacity 8.5GB – and the DVD media can store data on both sides – total capacity of 4 layers is 17GB. A track on the optical media is divided to sectors of 2048 bytes (the disk has 512 bytes). Basic read speed of the CD-ROM was 150kB/s. This speed is marked as single speed. The drive speed is derived from this value. For DVD the basic speed is 1.38MB/s (nearly ten times faster than the CD-ROM). Maximum transfer speed given by manufacturer of optical drives can be achieved only on the outer edge of the media.
+
+##### CD-ROM, CD-R, CD-RW
+
+![cd](./images/cd.png)
+
+The CD-ROM drive has a content of data layer given by manufacturer. Data is pressed into an aluminum layer permanently.
+The CD-R medium allows users to write their own data to the disk only once. The material of the recording layer allows to create pits by laser. But the laser must be ten times stronger for writing than for reading. The CD-R disc can store data for several years, the recording layer ages.
+The CD-RW medium allows rewriting the data. The recording layer is from a special material. It is located between two dieletric layers. The recording layer can be melted by the laser and after the cooling it allows to write data in the same way as the CD-R medium. This process can be repeated many times. But each data write causes a little damage of recording layer. The problem is with the high speed of media rotation too. When the recording layer is melted, it is affected by centrifugal force. This force must not disrupt the recording layer!
+
+##### DVD
+
+The DVD disk has the same dimension as the CD-ROM disk. But the DVD disk can use both sides for data and therefore it is composed of two thinner (0.6 mm) polycarbonate disks. The data layer is between them. Disks are connected with glue. In addition, the drive allows two data layers on each side. Next pictures shows two cross-sections of the single side DVD disk with data in single (DVD-5) and two layers (DVD-9). The DVD drive uses two laser beams for two layered disk.
+
+![dvd](./images/dvd.png)
+
+
+## Monitors
+
+Monitors and displays are the most important interface between the user and the computer. They allow to display text and graphical information. Their properties are a major factor that determines the ergonomics of computer work (concurrently with sitting at the right and good quality chair).
+The development of display units for computers, TV, PDA and cell phones has made a big progress in the last few decades. 
+The following well known technologies have gained their important place on the market:
+- CRT – Cathode Ray Tube
+- LCD – Liquid Crystal Display
+- Plasma display 
+- OLED – Organic Light Emitting Diode
+- E-Ink – Electronic (Electrophoretic) Ink.
+
+### CRT
+
+The CRT screen is the successor of the tubes. It is a glass vacuum tube. The front part of the screen is covered by luminophores. There is electron gun on the oposit side. Electron gun emits electrons and  a Wehnelt Cylinder guides them to the stream. In the focusing cylinder (g2-g5) the stream is narrowed to a thin ray. Because the Electron gun is the Cathode and the Screen is the Anode, the electron ray continues to screen. Then the ray has to pass through Focusing Coils, which direct the ray to specified point on the screen and it is able to control the ray intensity. When an electron ray reaches the luminophore on the screen, this material transforms the kinetic energy of electrons to photons. Thus the screen emits light. On the screen there are three types of luminophores – red, green, blue – to achieve a color, three electron guns work in the screen together, for each color individually.
+
+![crt](./images/crt.png)
+
+The electron ray starts in the upper left of the screen corner and from left to right, line-by-line, quickly “draws” the image. Than the ray returns back from the bottom right corner to the upper left corner
+
+![crt draw](./images/crt_draw.png)
+
+The luminophore is able to emit light only for a few milliseconds and the image has to be redrawn many times per second. For human eyes the acceptable minimum refresh frequency is 60Hz. The ergonomic minimum is 72Hz and the best refresh rate is in the range from 80Hz to 100Hz. 
+Regarding image quality, the shape of the screen mask is a very important topic. 
+First RGB monitors used the Invar mask. It is a metal plate with small round holes arranged as a honeycomb. The main problem of this mask was the lower image quality on the screen edges. The latest monitors used Trinitron mask (designed and patented by Sony). The luminophor on the screen is organized in columns separated by thin wires. Screens with this technology can be flat have better image quality on the whole screen surface.
+
+#### Pros and Cons
+
+- Benefits: sharpness, color fidelity, good response, viewing angle, visible at daylight, working at all temperatures.
+- Disadvantages: heavy, high power consumption, slow start, harmful radiation, aging of luminophores.
+
+### LCD
+
+The LCD technology – Liquid Crystal Display – is currently used in most monitors. As the name suggests,the main active components are liquid crystals. But the the LCD is assembled from multiple layers:
+
+![lcd](./images/lcd.png)
+
+It can bee seen from the previous scheme that an LCD consists (minimally) of five layers. The source of light is on the LCD background. This light is polarized in all directions. The light has to be polarized by the first layer and continues through a transparent orientation plate to a nematic layer with crystals. Crystals in this layer have one very important property. They are able to change the orientation of the polarized light. The size of the change can be affected by the electrical voltage. The light with changed polarization passes through the second orientation layer to the outer polarization filter. This filter has an orthogonal polarization relative to the first filter. Thus, only light with changed polarization in the middle layer can pass through the last layer. Brightness (intensity) of the output light is controlled by the voltage in the middle layer in the nematic structures. The orientation filters help to set correct the orientation of crystals in this structure. Because crystals are in liquid state, their position change is delayed.
+
+
+#### RGB LCD
+
+![rgb lcd](./images/rgb_lcd.png)
+
+When we need color representation, it is necessary to add the colored layer. You can see this on the previous picture. Light from the front polarized filter passes through one basic color filter – RGB – and because the source of light is white, the result is exactly one basic color. The resulting color is the combination of all three colors RGB. Thus all pixels on the color display consist of three smaller cells with different colors. The previous picture also shows, how LCD display controls the intensity of output light. We can get higher or lower light intensity by bigger or smaller rotation of light.
+
+#### LCD Control
+
+The control of all screen pixels is needed to draw the image on the LCD screen. As it was mentioned earlier, the brightness of pixel is controlled by the voltage in the middle layer. 
+There are two known ways to control all pixels. 
+The first one is passive display, where wires are integrated in both orientation layers. The bottom layer integrates an horizontal net of wires and the top layer the vertical net. The pixel on the screen is selected by proper horizontal and vertical wires and it is activated with a required voltage. But an interference between the wires may cause a blur. The whole image is then drawn in the same way as on CRT monitor. 
+The second more sophisticated method to control LCD is active display with TFT. All cells in display have their own control transistor and pixel activation is faster and accurate.
+
+#### Pros and Cons
+
+- Benefits: low power consumption, light(weight), small dimensions, stable image. 
+- Disadvantages: slow response, fixed resolution, color distortion, limited viewing angle, low brightness (on daylight), backlight.
+
+
+### OLED
+
+OLED – Organic LED display uses the newest semiconductor technology with organic materials. The scheme of one RGB pixel of a display is below. The organic emitter is inserted between two semiconductor layers.
+
+![oled](./images/oled.png)
+
+The previous figure shows the OLED structure. The metal cathode is at the back of all layers. The second layer is semiconductor for electron transport. The next layer is an organic material capable of emitting light. The fourth layer is a transparent material for holes transport. Under the glass plate there are transparent anodes.When the power is connected to electrodes, electrons start to cumulate in the organic layer closer to the anode. Holes cumulate on the opposite site of an organic material. Holes and electrons start “to collide” in organic layer, electrons and holes eliminate each other and emit photons. This principle is called recombination.
+
+#### AMOLED/PMOLED
+
+The acronym AMOLED and PMOLED means Active / Passive Matrix OLED. This is the same principle as the active and passive LCD displays. Display pixels are organized into a rectangular matrix. Each OLED is activated in passive displays with two orthogonal electrodes. Electrodes pass through the entire width and height of the display. In AMOLED displays all OLEDs are activated by their own transistor.
+
+#### Pros and Cons
+
+- Benefits: high contrast, full range of color, low power consumption (directly proportional to required brightness), good viewing angle, without delay.
+
+
+### E-Ink Display, Electronic Paper
+
+E-book readers became nowadays very popular. They are based on an electronic paper, which uses the electronic ink – E-Ink. The scheme of one E-Ink cell is visible on the next picture
+
+![e-ink](./images/e_ink.png)
+
+One cell is in E-Ink technology called capsule. All capsules have diameter in tens or hundreds of micrometers. Capsules contains electrophoretic (electrically separable) liquid. The liquid consists of the hydrocarbon oil, which is transparent and chemically stable for very long time. White particles with the positive charge swim in the oil. Black particles have the opposite charge. The oil is thick enough to keep particles in a stable position.White inorganic particles have the core made from the titanium oxide. The cover is silicon oxide and polymer. Black particles are made from the carbon. When the voltage is connected to electrodes, particles are attracted to the opposite charge. The top of black or white particles is then visible through the top transparent electrode. Particles stay in last position without current after voltage disconnection. The latest E-Ink technology uses divided electrodes and it is able to display 16 levels of the gray color.
+
+#### Pros and Cons
+
+- Benefits: high contrast, readable on direct sunlight, high resolution, wide view angle, does not need backlight, zero power consumption after image redraw. 
+- Disadvantages: few levels of gray, no colors, slow redraw with long response. 

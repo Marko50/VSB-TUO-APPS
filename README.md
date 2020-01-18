@@ -374,13 +374,115 @@ In 2006 the new 64-bit processor was introduced – Intel Core 2. It implements 
 
 In 2008 Intel presented the processor Atom. Only a few processors with the ultra low power consumption were available at that time on the market. These processors were produced by AMD – processors Geode, and by VIA – C7 and Eden. Intel at that time did not produce small processors and they needed to fill the gap on the market. Atom uses a completely new architecture named Bonnell.
 
+## Computer Memories
+
+### Memory Hierarchy
+
+There are many types of memories used in today's computers. Memories are made using different technologies. There is a memory hierarchy according to their speed, capacity and price:
+1. Registers – smallest and fastest SRAM memory in a processor.
+2. Cache L1 – SRAM memory ranging from kB to tens of kB.
+3. Cache L2 – SRAM memory ranging from tens of kB to tens of MB.
+4. Main memory – DRAM size up to tens GB. 
+5. Hard disks – magnetic memory, size up to a few 
+6. Optical memory – CD, DVD, etc.
+7. Magnetic tapes with capacity up to a few TB, but very slow. 
+
+Registers are the fastest and the most expensive. Tapes are the slowest and the cheapest.
+
+### Memory Classification
+
+The internal computer memories are characterized by several parameters. Their first division is possible by memory access:
+- RAM – Random Access Memory.
+- SAM – Serial Access Memory.
+- Special access – stack, queue, multi-ports, associative memory.
+
+The second division of memories can be made according to the ability to read and/or to write:
+- RWM – Read and Write memory.
+- ROM – Read Only Memory.
+- WOM – Write Only Memory.
+- Combined Memory.
+
+The third option is to divide memories by the type of memory cell:
+- DRAM – Dynamic RAM, cell is capacitor.
+- SRAM – Static RAM, cell is transistor flip-flop.
+- EPROM, EEPROM, Flash – programmable memory, cell is a special MOS transistor. 
+
+Memories are classified by all parameters simultaneously. For example the main operating memory of personal computers is usually (incorrectly) known as *RAM*. Correctly it should be marked as *RWM DRAM*.
+
+### DRAM
+
+The Dynamic RAM has all cells composed by a tiny capacitor with one transistor. All capacitors have their capacity in fF (femto Farad) and they are not able to store charge for a long time. They are very quickly losing their charge. Therefore the charge of all the capacitors in the chip has to be periodically refreshed every few milliseconds. The refresh was earlier made by reading the memory, e.g. by the DMA usage. Now the  refresh is implemented directly in the chip and does not need any external circuits. The transistor in all cells only passes charge from/to the capacitor. Every reading of a cell discharges the capacitor and therefore it has to be charged back.
+
+![dram](./images/dram.png)
+
+The memory chip contains millions or billions of cells. Cells are organized in a square matrix and all cells have their own addresses, given by the address of a row and the address of a column. Therefore we have to specify two addresses to select a single cell: the row and the column. This two step addressing is a little slower than the direct addressing, but it needs less address signals. For example 1M of bits can be organized in a matrix of 1024x1024 (1k x 1k) and thus only 10(2^10 = 1024) address signals are needed. Normally for 1M of bits, 20 bits(10 for row and 10 for column, 10 + 10 = 20) would be necessary. One matrix forms one layer on the chip. The chip can integrate more layers and on the same address of the row and the column it has more bits stored. The scheme of 3D cells organization is on the next scheme. The chip contains 4M x 4 bits:
+
+![dram](./images/dram_3d.png)
+
+#### Writing to DRAM
+
+At first it is necessary to send to the memory address of the ROW and then the address of the COL. Together with the COL address data is written to the data bus. Memory has now one bus clock cycle to accept data from the bus. And the cycle repeats.
+
+![dram write](./images/dram_write.png)
+
+#### Reading from DRAM
+
+The processor sends to the bus the sequence of the ROW and COL address signals and the memory chip writes data to the bus in the next bus clock cycle and the processor takes them. The reading and writing from the memory in this way is not too fast and on average it takes tens of nanoseconds.
+
+![dram read](./images/dram_read.png)
+
+#### Reading from FP DRAM
+
+When the processor reads data from the memory, then the next reading is in the most cases from the following addresses. Therefore a better version of DRAM was designed – the Fast Page DRAM. When the processor reads data from the following addresses, it is not necessary to send the ROW signal again. Only the following COL addresses are sent. Thus reading is faster. 
+
+![fp dram read](./images/fp_dram_read.png)
+
+#### SDRAM
+
+The processors are faster than memories. Therefore their manufacturers introduced a new version of memories to improve their performance – Synchronous DRAM. This memory obtains signals ROW and COL and then generates the following COL signals automatically inside the chip and sends data to the bus. No more control signals are needed. But the chip has to be synchronized with the processor clock signal.
+
+![sdram](./images/sdram.png)
+
+#### DDR SDRAM
+
+The latest generation of DRAM is DDR SDRAM technology – Double Data Rate SDRAM. This memory is two times faster than SDRAM. Data to the bus is sent two times per one clock cycle. This memory is even used in the computer as a double channel memory and the final average time of reading is in units of nanoseconds. The maximum transfer speed is up to a few gigabytes per second.
+
+![ddr sdram](./images/ddr_sdram.png)
+
+#### DRAM Modules
+
+DRAM memories were produced over the time in several versions:
+- DIP – Dual In-line Package. As well as many other semiconductor chips, the DRAM memory was produced in this usual package too. 
+- SIPP – Single In-line Pin Packages. More DIP chips are mounted on a module - simple circuit board - with pins on one edge. But the insertion of a long line of pins in a connector was complicated. Pins usually bent and installations were unreliable. 
+- SIMM – Single In-line Memory Module. The same as SIPP, but the connector is directly on the module edge without pins. First generation had 30 pins, second one 72 pins.
+- DIMM – Dual In-line Memory Module. Designed for SDRAM, a DDR SDRAM and for 64 bits data bus. It is the successor of SIMM.
+- SO-DIMM – Small Outline DIMM. It is designed for notebooks and embedded computers.
+
+### Static Memory
+
+The static memory has all cells designed as the RS flip-flop. The information in cells is kept until the state is changed. It does not need refresh. Therefore these memories are called static. One bit can be saved in a cell consisting of four or six transistors. In a cell implemented as four transistors version, two transistors work as flip-flops and use resistors as active load. Other two transistors are activated by the address wire and connect the cell to the data wire for the reading or writing. The more modern six transistors version of cells needs more transistors on the chip, but the resistor load is replaced by two transistors and the whole memory has lower power consumption. This design allows to design memories with greater capacity. 
+
+![sram](./images/sram.png)
+
+The flip-flop memory cell design allows to read and to write data very fast. Thus static memory is used for the fastest memory in computers. But overall, the high number of transistors does not allow to produce chips with high capacity, as DRAM memory has. Because SRAM is used for memory with fast access, the internal structure is adapted accordingly. Memory cells are organized in the matrix, but all rows have their own full address. All cells in the row are activated in a single step. Therefore it is necessary to have a more complex decoder in the chip and use more address wires. However with lower memory capacity its price is significantly higher.
+
+The next scheme shows the chip with 4 bits address bus and 16 rows. Each row contains 8 bits. 
+
+![sram_addr_decoder](./images/sram_addr_decoder.png)
 
 
+### Nonvolatile Memory
 
+The SRAM and DRAM memories hold information only when they are powered by the electricity. But in all computers it is necessary to store a lot of information permanently – BIOS, firmware, measured data, configuration, etc. – in nonvolatile memories. Nonvolatile memory needs power supply too, but only for data access. Information is held in special memory cells. They are constructed from the transistor with an insulated control electrode. Several types of these memories are used in computers:
+- PROM or OTP – Programmable Read Only Memory, nowadays called One Time Programmable. This memory is used where stored information will never change. For example in microcomputer using that memory. 
+- EPROM – Erasable PROM. This technology allows to clear the whole memory with ultraviolet light and program it again. But the chip has to be removed from board, which is inconvenient.
+- EEPROM – Electrically Erasable PROM. This type of memory does not need UV light for erasing. It can be erased electrically. But for erasing it requires an higher voltage, like the normal power supply. Normally the chip is supplied by 5V and for erasing 12V is used. It is unpleasant too that the memory must always be erased completely.
+- Flash – the successor of EEPROM. Flash memory is now used in most computers as a nonvolatile memory. It allows to erase only a small part of the memory and the modern version does not need an higher voltage for the erasing. It works with normal voltage 5V or 3.3V. The disadvantages remain slow erasure and limited number of writes. Flash memory is not used only for programs in computers. Now it is more and more used as computer “disk” due to decreasing price. It is known as SSD (Solid State Disk) or USB Flash Drive. 
 
+### Memresistor
 
+The fourth passive circuit component was already envisioned theoretically in 1971 but the first time it was made in 2008 by the Hewlett-Packard laboratories. The diagram with electrical properties:
 
+![memresistor](./images/memresistor.png)
 
-
-
-
+The resistance of a memristor depends on the integral of the input applied to the terminals. Since the element "remembers" the amount of current that passed through it in the past, it was tagged with the name "memristor". Another way of describing a memristor is that it is any passive two-terminal circuit element that maintains a functional relationship between the time integral of current (called charge) and the time integral of voltage (often called flux, as it is related to magnetic flux). The slope of this function is called the memristance M. Memristor is nano device that remember information permanently, switch it in nanoseconds, it is super dense and power efficient. This makes memristors potential replacements for DRAM, Flash(nonvolatile), and disk. Probably in the near future, computers will use only one universal memory - “MRAM”. But redesign of computer architecture will be required.

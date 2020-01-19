@@ -180,6 +180,7 @@ The instruction set reduction is a well known feature of RISC processors. But de
 - Pipelined execution of instructions is used.
 - In every machine cycle one instruction is completed.
 - Complex technical processor equipment is transferred to the programming language compiler. Programming in assembly language is not recommended.
+
 All these features make up sophisticated and coherent circuit. When all instructions have the same length and format, then Fetch and Decode Units can have a simple design and can work faster. More registers had to be implemented, because not all instructions are able to access data directly in the memory and so, more temporary data is necessary to be stored in the processor.
 
 ### Pipelining

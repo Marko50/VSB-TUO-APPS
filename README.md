@@ -525,9 +525,18 @@ The previous scheme shows the clock signal with the period T0. Four clock period
 
 Three common clock sources are:
 
-- RC circuit – is the cheapest solution with higher inaccuracy. Since the timing depends on the value of the capacitor and resistor, it is not possible to have accurate timing. The value of both passive parts changes with temperature and moreover with capacitors age. ![rc circuit](./images/rc_circuit.png)
-- Crystal - is produced in wide range of frequencies and with very high accuracy. But its speed is fixed and it can not be changed. The disadvantage is to have other parts on the board: crystal plus two addition small capacitors. ![crystal](./images/crystal.png)
-- External clock source – In many applications a clock source from other parts of circuit is used. It can also be produced by special oscillating circuits that can be adjusted during the operation. The dynamic decreasing of frequency can significantly reduce the microprocessor's power consumption, which is important for battery-powered applications. ![external clock source](./images/external_clock_source.png)
+- RC circuit – is the cheapest solution with higher inaccuracy. Since the timing depends on the value of the capacitor and resistor, it is not possible to have accurate timing. The value of both passive parts changes with temperature and moreover with capacitors age. 
+
+    ![rc circuit](./images/rc_circuit.png)
+
+- Crystal - is produced in wide range of frequencies and with very high accuracy. But its speed is fixed and it can not be changed. The disadvantage is to have other parts on the board: crystal plus two addition small capacitors. 
+
+    ![crystal](./images/crystal.png)
+
+- External clock source – In many applications a clock source from other parts of circuit is used. It can also be produced by special oscillating circuits that can be adjusted during the operation. The dynamic decreasing of frequency can significantly reduce the microprocessor's power consumption, which is important for battery-powered applications. 
+
+    ![external clock source](./images/external_clock_source.png)
+
 
 ### RESET
 

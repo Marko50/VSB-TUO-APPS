@@ -801,7 +801,7 @@ OLED – Organic LED display uses the newest semiconductor technology with organ
 
 ![oled](./images/oled.png)
 
-The previous figure shows the OLED structure. The metal cathode is at the back of all layers. The second layer is semiconductor for electron transport. The next layer is an organic material capable of emitting light. The fourth layer is a transparent material for holes transport. Under the glass plate there are transparent anodes.When the power is connected to electrodes, electrons start to cumulate in the organic layer closer to the anode. Holes cumulate on the opposite site of an organic material. Holes and electrons start “to collide” in organic layer, electrons and holes eliminate each other and emit photons. This principle is called recombination.
+The previous figure shows the OLED structure. The metal cathode is at the back of all layers. The second layer is a semiconductor for electron transport. The next layer is an organic material capable of emitting light. The fourth layer is a transparent material for proton transport. Under the glass plate there are transparent anodes. When the power is connected to electrodes, electrons start to cumulate in the organic layer closer to the anode. Protons cumulate on the opposite side of the organic material. Protons and electrons start "to collide" in the organic layer, and eliminate each other emitting photons. This principle is called recombination.
 
 #### AMOLED/PMOLED
 

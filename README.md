@@ -931,9 +931,145 @@ The NAND flash also uses floating-gate transistors, but they are connected in a 
 
 ![bit nand](./images/bit_nand.png)
 
+## CUDA
+
+The General Purpose Graphics Processing Unit is one of the most modern  parallel  system  with  an  higher computing performance.  But there are more reasons why to become familiar with this technology:  - Massive parallelism (division of algorithms into elementary steps and its programming). 
+- Correct data manipulation (transfer between GPU and CPU).
+- Digital  image  handling  (processing)  and  graphical data representation in a computer.
+- Representation of colors (RGB, BGR, RGBA, B&W)    - Representation of digital images data – matrices, linear sequence of bytes in memory.
+- Introduction of Open Source Computer Vision Library (OpenCV). 
+- Last but not least: Object programming
+
+### Advantages of GPU Computing
+
+GPUs are designed to run parallelly many hundreds of threads. They  can  virtually  execute  hundreds  of  thousands of threads. Therefore this architecture is called Massively Parallel System. 
+All threads have to be independent. The GPU does not guarantee the order of thread execution. GPU is designed to process and compute intensive code with a limited number of conditional jumps.  
+A better option is to write code without "if" conditions. A GPU does not support out of order execution (like Intel CPU) and is optimized for the sequential access to the main (global) memory of the graphical card. The transfer speed by the bus is up to hundreds of GB/s. Most of the transistors in a  GPU are designed for computing. Other auxiliary  circuits are minimized.
+
+### GPU and CPU comparison
+
+![gpu vs cpu](./images/gpu_vs_cpu.png)
+
+The scheme above shows the ratio of chip parts in a typical modern CPU and GPU. Green areas represent computing units. Yellow areas are controllers and orange ones are memories. The DRAM memory is neither part of the GPU or the CPU, but it has to be used to store data for computation.
+
+### CUDA Architecture
+
+![cuda architecture](./images/cuda_architecture.png)
+
+CUDA  architecture  unified  the  internal  architecture of all Nvidia GPUs. The previous scheme shows that on the highest level there is a  graphical card divided to Multiprocessors.Every graphics card contains a different number of multiprocessors. The device memory is shared between all multiprocessors. It consists of three parts: the Global memory, Texture memory and Constants memory. All multiprocessors can share their data only using the device memory! The design of all microprocessors is the same. All of them contain shared memory for all processors in the single multiprocessor. All processors have their own bank of registers. Every multiprocessor has a cache to speed up the access to texture and constant memories. Both caches are read only. This unified architecture and terminology facilitates programming.
+
+#### Fermi Architecture
+
+In 2010 Nvidia introduced  its newest GPU architecture.
+The newest GPU architecture is primarily designed for the general computing, not only for graphics cards. The scheme below shows only one multiprocessor. This multiprocessor contains 2x16 cores. Each core has one ALU and FPU unit. One group of 16 cores is called half-warp. One half-warp has one instruction decoder. All cores are implemented with 32 kB of registers and 64 kB shared memory and L1 data cache. Four SFU – Special Floating Point Unit are also available to handle transcendental and other special operations such as sin, cos, exp... Four  of  these  operations  can  be  issued  per  cycle  in  each multiprocessor. FPU Units can compute in single and double precision. ALU units support computation with 32 and 64 bits integers.
+
+![fermi](./images/fermi.png)
 
 
+### Memories in a Computer
+
+Up to now we have spoken only about GPU and  graphics card. These devices are installed in the computer  and it is necessary to familiar with memory organization in the computer. The Device is a graphical card with DRAM memory and GPU multiprocessors. The Host is any computer with an installed device. The memory in the device and the memory in the host are connected only by bus. They are not shared!
+
+![gpu memories](./images/gpu_memories.png)
 
 
+### Unified Memory
+
+Unified  Memory  and  memory  sharing  are  driving  features of modernized GPU architectures. This  extends beyond system resources and reaches into L1/L2 Cache and texture cache with GPU.
+
+![unified memory](./images/unified_memory.png)
 
 
+### Computing Process
+
+1. Copy data from the HOST memory to the DEVICE memory.
+2. Start threads in the DEVICE.
+3. Execute threads in GPUs multiprocessors.
+4. Copy results back from the DEVICE memory to the HOST memory. 
+
+![cuda computing process](./images/cuda_computing_process.png)
+
+
+The typical GPU computing process  is  shown  on  the  previous diagram. Before the GPU computing is started, it is necessary to move data from the computer main memory to the global device memory. Data is passed by the computer bus. This bus is much slower than memory buses in the computer and  graphics card. Today the graphics card uses usually the PCI-Express bus with transfer speed less than 5 GB/s. The second step is to transfer code to the GPU  and start the computing. The third phase is the  massively parallel execution of threads. During the  GPU computing the CPU can continue its own processes. The last step of computing is the transfer of the computed data from the device  memory back to the  computer main memory. Then the CPU in the computer can evaluate and use the results.
+
+
+### GPU Computation Efficiency
+
+It is important to keep in mind some basic rules to  maximize efficiency of GPU computing: 
+- Minimize data transfer between host and the device. In an ideal case transfer data only twice. Before and after computing. 
+- Use the GPU only for tasks with very intensive calculations. 
+- GPU with shared memory on the board would be more suitable. 
+- For intensive data transfer between CPU-GPU use pipelining. 
+- GPU computing can be used alongside data transfer GPU-CPU or CPU computing. 
+- Optimize access to shared memory. Sequential access is much faster then random  access.
+- Reduce divergent threads. Select optimal thread grid.
+
+### Programming
+
+CUDA is not only a unified GPU architecture. 
+CUDA is mainly a programming interface that allows  to use the GPU computing power. Today CUDA is  available for C/C++, Fortran, OpenCL, Direct  computing, Java and Python. 
+Now we will shortly deal with the programming in C/C++. CUDA introduced a few language extensions to the standard. 
+- The kernel is a function for GPU threads. The C/C++ is extended for kernel function execution using the command `name<<<...>>>(...)`.
+- `__device__` is a function modifier. This function will be executed in the device and it can be called only from the device.
+`__host__` is the opposite function modifier to `__device__`. Functions marked with this modifier are only for the CPU.
+- `__global__` is a modifier for kernels. Functions will be executed in the GPU, but called from the CPU.
+
+Variable type qualifier:
+- `__device__` declares a variable that resides in the device as long as the application is running.
+- `__constant__` is used for variables placed in constant memory.
+- `__shared__`  variable resides in the shared memory  of the block, where the kernel is running. 
+
+New types are defined for data shared between the GPU and CPU:
+All common data types – `char`, `uchar`, `int`, `uint`, `short`, `ushort`, `long`, `ulong`, `float` and `double` are used as structures with suffix 1, 2,3 or 4. For example `int3` is a structure with 3  items. All members in the structures are accessible by the x,y, z and w fields. The grid dimension uses type `dim3 = uint3`.
+
+```c++
+int3 myvar;
+myvar.x = myvar.y = myvar.z = 0;
+```
+
+All threads are organized in a grid and every thread in this grid has an exact position. Every thread has predefined variables to identify itself among others:
+- `dim3 gridDim` contains the dimension of the whole grid.
+- `uint3 blockIdx` contains the block position in the grid.
+- `dim3 blockDim` contains the dimension of block (all blocks in the grid have the same dimension).
+- `uint3 threadIdx` position of thread in a block.
+- `int warpSize` contains the warp size in the threads.
+
+### Grid
+
+![cuda grid](./images/cuda_grid.png)
+
+The grid organization is shown on the previous scheme. Programmers have to setup the grid before starting the kernel. The  kernel code has to be  adjusted to the proposed grid. When some thread  from the defined grid needs to know its own position,it has to use predefined variables to correctly identify which part of the problem will be computed just in this thread and kernel. 
+The method of calculation was introduced in the previous diagram, where x and y are the exact positions in the grid (2D).
+
+
+### API
+
+CUDA API contains up to one hundred functions. Here are but a few for starters:
+- `cudaDeviceReset()` - function to (re)initialize the device.
+- `cudaDeviceSynchronize()` - synchronize the device and the host.
+- `cudaGetLastError()` - returns `cudaSuccess` or an error code. 
+-`CudaGetErrorsString(...)` returns a string for an error code.
+- `CudaMalloc(...)` - allocates memory in the device.
+- `CudaMallocManaged(...)` - allocates unified memory.
+- `CudaFree(...)` - releases allocated memory.
+- `CudaMemcpy(...)` - copies memory between the host and the device. The direction of copying is given  by the value of `cudaMemcpyHostToDevice` or `cudaMemcpyDeviceToHost`. 
+- `printf()` - CUDA capabilities 2.0 or higher allow users to use printf. The output is not displayed in-line, but at the end of the computation.
+
+```c++
+// printf() is only supported
+// for devices of compute capability 2.0 and above
+
+__global__ void helloCUDA(float f)
+    {
+        printf(“Hello thread %d, f=%f\n”,
+        threadIdx.x, f)
+    ;}
+    void main(){
+        helloCUDA<<<1, 5>>>(1.2345f);
+        if ( cudaGetLastError() != cudaSuccess) {
+            printf( “Error: %s\n”, cudaErrorString(cudaGetLastError() ) )
+        ;}
+            else 
+                printf( “Kernel finished successfuly\n” );cudaDeviceSynchronize();
+    }
+```

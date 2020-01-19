@@ -1061,15 +1061,15 @@ CUDA API contains up to one hundred functions. Here are but a few for starters:
 
 __global__ void helloCUDA(float f)
     {
-        printf(“Hello thread %d, f=%f\n”,
-        threadIdx.x, f)
+        printf(“Hello thread %d, f=%f\n”,threadIdx.x, f)
     ;}
     void main(){
         helloCUDA<<<1, 5>>>(1.2345f);
         if ( cudaGetLastError() != cudaSuccess) {
-            printf( “Error: %s\n”, cudaErrorString(cudaGetLastError() ) )
-        ;}
+            printf( “Error: %s\n”, cudaErrorString(cudaGetLastError() ) );
+            }
             else 
-                printf( “Kernel finished successfuly\n” );cudaDeviceSynchronize();
+                printf( “Kernel finished successfuly\n” );
+                cudaDeviceSynchronize();
     }
 ```

@@ -280,7 +280,14 @@ Manufacturers use super-scalar architecture in the highest performance computers
 ### Structural and Data Hazards
 
 The pipeline filling is not the only problem of the RISC processors. In many cases a problem may occur, when some pipeline stage needs data, which are not yet available. For example, some instructions need the address of the operand, but the address may not yet have been stored by the previous instruction. If this happens, we call it a data hazard. The problem can be solved directly in the pipeline, or by a compiler that prepares the correct instruction sequence. 
-Another type of the hazard occurs during handling the resources. When more pipeline stages need to load data from memory: e.g. the 1st fetches an instruction,the 2nd loads data and the 3rd stores the result. All stage circuits need access to the bus. But if the computer contains only one bus and it is impossible to use the bus in parallel, only one unit can use the bus at the same time. These types of hazards are called structural. 
+Another type of the hazard occurs during handling the resources. When more pipeline stages need to load data from memory: e.g. the 1st fetches an instruction,the 2nd loads data and the 3rd stores the result. All stage circuits need access to the bus. But if the computer contains only one bus and it is impossible to use the bus in parallel, only one unit can use the bus at the same time. These types of hazards are called structural.
+
+
+### Well Known RISC
+
+Processors: ARM and MIPS
+
+Microcomputers: Microchip, Atmel 
 
 ## Intel Processors Evolution
 
@@ -1070,6 +1077,7 @@ void main(){
     }
     else 
         printf("Kernel finished successfuly\n");
+
     cudaDeviceSynchronize();
 }
 ```
